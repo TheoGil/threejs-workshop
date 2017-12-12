@@ -15,7 +15,6 @@ const camera_distance = 20;
 
 // Set up the scene
 const scene = new THREE.Scene();
-
 const renderer = new THREE.WebGLRenderer({
     canvas: document.getElementById('scene'),
 });
@@ -26,19 +25,16 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 camera.position.z = camera_distance;
 
 // Create all stars
-for (let i = 0; i < star_count; i++) {
-    let star = new Star({
-        radius: star_size,
-        x: Math.random() * randomStarPositionOffset,
-        y: Math.random() * randomStarPositionOffset,
-        z: -(i * distanceBetweenStars),
-        scene: scene,
-    });
-    stars.push(star);
-    star.append();
-}
-
-camera.lookAt(stars[0].mesh.position);
+let star = new Star({
+    radius: star_size,
+    x: Math.random() * randomStarPositionOffset,
+    y: Math.random() * randomStarPositionOffset,
+    z: -(i * distanceBetweenStars),
+    scene: scene,
+});
+stars.push(star);
+star.append();
+camera.lookAt(star.mesh.position);
 controls.update();
 
 // And also some lights so we can see something!
