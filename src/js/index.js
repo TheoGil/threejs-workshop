@@ -27,9 +27,9 @@ camera.position.z = camera_distance;
 // Create all stars
 let star = new Star({
     radius: star_size,
-    x: Math.random() * randomStarPositionOffset,
-    y: Math.random() * randomStarPositionOffset,
-    z: -(i * distanceBetweenStars),
+    x: 0,
+    y: 0,
+    z: 0,
     scene: scene,
 });
 stars.push(star);
