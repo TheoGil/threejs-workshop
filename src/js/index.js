@@ -2,17 +2,21 @@ import '../css/reset.css';
 import '../css/style.css';
 
 import * as THREE from 'three';
+import TweenMax from 'gsap';
 import 'three/OrbitControls';
 import svgMesh3d from 'svg-mesh-3d';
 import Star from './Star.js';
 
-const svgPath = "M.5 41.4L.6 1.3 28.9 31l-.2-28.6h4.8v40L5.3 13.3v28.2z";
+const svgPath = "M7 608L9 18l416 437-3-420h71v588L78 195v414z";
 const svgData = svgMesh3d(svgPath);
 
 const stars = [];
-const star_size = 0.02;
+const star_size = 0.01;
 const star_count = svgData.positions.length;
 const camera_distance = 2;
+const starPositionMaxOffset = 1;
+const distanceBetweenStars = 1;
+let isExploded = false;
 
 // Set up the scene
 const scene = new THREE.Scene();
@@ -34,6 +38,11 @@ for (let i = 0; i < star_count; i++) {
         y: svgData.positions[i][1],
         z: svgData.positions[i][2],
         scene: scene,
+        explodedPosition: new THREE.Vector3(
+            Math.random() * starPositionMaxOffset,
+            Math.random() * starPositionMaxOffset,
+            -(i * distanceBetweenStars)
+        ),
     });
     stars.push(star);
     star.append();
@@ -55,6 +64,17 @@ function letThereBeLight () {
     }
 }
 letThereBeLight();
+
+document.getElementById('js-move-points').addEventListener('click', () => {
+    for (let i = 0; i < star_count; i++) {
+        TweenMax.to(stars[i].mesh.position, .5, {
+            x: isExploded ? stars[i].originalPosition.x : stars[i].explodedPosition.x,
+            y: isExploded ? stars[i].originalPosition.y : stars[i].explodedPosition.y,
+            z: isExploded ? stars[i].originalPosition.z : stars[i].explodedPosition.z,
+        });
+    }
+    isExploded = !isExploded;
+}, false);
 
 // Those line make sure that we maintain a correct aspect ratio when resizing window
 window.addEventListener('resize', () => {
