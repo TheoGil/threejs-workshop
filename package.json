@@ -28,6 +28,7 @@
   "dependencies": {
     "dat.gui": "^0.6.5",
     "gsap": "^1.20.3",
+    "svg-mesh-3d": "^1.1.0",
     "three": "^0.88.0"
   }
 }

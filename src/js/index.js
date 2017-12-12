@@ -3,15 +3,16 @@ import '../css/style.css';
 
 import * as THREE from 'three';
 import 'three/OrbitControls';
-import dat from 'dat.gui/build/dat.gui.js';
+import svgMesh3d from 'svg-mesh-3d';
 import Star from './Star.js';
 
+const svgPath = "M.5 41.4L.6 1.3 28.9 31l-.2-28.6h4.8v40L5.3 13.3v28.2z";
+const svgData = svgMesh3d(svgPath);
+
 const stars = [];
-const star_size = 1;
-const star_count = 20;
-const distanceBetweenStars = 100;
-const randomStarPositionOffset = 200;
-const camera_distance = 20;
+const star_size = 0.02;
+const star_count = svgData.positions.length;
+const camera_distance = 2;
 
 // Set up the scene
 const scene = new THREE.Scene();
@@ -29,17 +30,14 @@ camera.position.z = camera_distance;
 for (let i = 0; i < star_count; i++) {
     let star = new Star({
         radius: star_size,
-        x: Math.random() * randomStarPositionOffset,
-        y: Math.random() * randomStarPositionOffset,
-        z: -(i * distanceBetweenStars),
+        x: svgData.positions[i][0],
+        y: svgData.positions[i][1],
+        z: svgData.positions[i][2],
         scene: scene,
     });
     stars.push(star);
     star.append();
 }
-
-camera.lookAt(stars[0].mesh.position);
-controls.update();
 
 // And also some lights so we can see something!
 let lights = [];
