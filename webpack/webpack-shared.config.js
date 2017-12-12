@@ -57,7 +57,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html',
       filename: 'index.html',
-      title: 'three-js-experiment',
+      title: 'THREE.js Workshop',
       cdnJsThree: true
     }),
     new ExtractTextPlugin("styles.css"),
