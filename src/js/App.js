@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import 'three/OrbitControls';
-import Star from './Star.js';
 import svgMesh3d from 'svg-mesh-3d';
+import TweenMax from 'gsap';
+import Star from './Star.js';
 
 export default class App {
     constructor (options) {
@@ -37,6 +38,12 @@ export default class App {
         this.camera = camera;
         this.renderer = renderer;
         this.controls = controls;
+
+        window.addEventListener('resize', () => {
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+        }, false);
     }
 
     initStars () {
