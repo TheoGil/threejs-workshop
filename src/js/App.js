@@ -258,8 +258,8 @@ export default class App {
 
         const bokehPass = new BokehPass(this.camera, {
             focus: 0.32,
-            dof: 0.02,
-            aperture: 0.015,
+            dof: 0.6,
+            aperture: 0.0394,
             maxBlur: 0.025
         });
         bokehPass.renderToScreen = false;
