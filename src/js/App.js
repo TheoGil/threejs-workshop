@@ -3,6 +3,7 @@ import 'three/OrbitControls';
 import svgMesh3d from 'svg-mesh-3d';
 import TweenMax from 'gsap';
 import Star from './Star.js';
+import TextureAnimator from './TextureAnimator.js';
 import texture from './star_spritesheet_12x25.png';
 
 export default class App {
@@ -86,17 +87,17 @@ export default class App {
 
     initAnimatedSprite () {
         const spritesheet = new THREE.TextureLoader().load(texture);
-        this.annie = new TextureAnimator(spritesheet, 25, 12, 300, 120); // texture, #horiz, #vert, #total, duration
-        const material = new THREE.PointsMaterial({
-            size: 0.5,
+        const material = new THREE.SpriteMaterial({
+            size: 0.1,
             map: spritesheet,
             transparent: true,
             opacity: 0,
             blending: THREE.AdditiveBlending
         });
-        const geometry = new THREE.Geometry();
-        geometry.vertices.push(new THREE.Vector3(0, 0, 0));
-        this.animatedSprite = new THREE.Points(geometry, material);
+        this.animatedSprite = new THREE.Sprite(material);
+        this.animatedSprite.scale.set(.5, .5, .5);
+        console.log(this.animatedSprite);
+        this.spriteAnimator = new TextureAnimator(spritesheet, 25, 12, 300, 120, this.animatedSprite); // texture, #horiz, #vert, #total, duration
         this.scene.add(this.animatedSprite);
     }
 
@@ -117,8 +118,7 @@ export default class App {
 
     animate () {
         requestAnimationFrame(this.animate.bind(this));
-        var delta = this.clock.getDelta();
-        this.annie.update(1000 * delta);
+        this.spriteAnimator.update(1000 * this.clock.getDelta());
         this.renderer.render(this.scene, this.camera);
     }
 
@@ -182,43 +182,4 @@ export default class App {
 
         this.isExploded = !this.isExploded;
     }
-}
-
-function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration)
-{
-    // note: texture passed by reference, will be updated by the update function.
-
-    this.tilesHorizontal = tilesHoriz;
-    this.tilesVertical = tilesVert;
-    // how many images does this spritesheet contain?
-    //  usually equals tilesHoriz * tilesVert, but not necessarily,
-    //  if there at blank tiles at the bottom of the spritesheet.
-    this.numberOfTiles = numTiles;
-    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set( 1 / this.tilesHorizontal, 1 / this.tilesVertical );
-
-    // how long should each image be displayed?
-    this.tileDisplayDuration = tileDispDuration;
-
-    // how long has the current image been displayed?
-    this.currentDisplayTime = 0;
-
-    // which image is currently being displayed?
-    this.currentTile = 0;
-
-    this.update = function( milliSec )
-    {
-        this.currentDisplayTime += milliSec;
-        while (this.currentDisplayTime > this.tileDisplayDuration)
-        {
-            this.currentDisplayTime -= this.tileDisplayDuration;
-            this.currentTile++;
-            if (this.currentTile == this.numberOfTiles)
-                this.currentTile = 0;
-            var currentColumn = this.currentTile % this.tilesHorizontal;
-            texture.offset.x = currentColumn / this.tilesHorizontal;
-            var currentRow = Math.floor( this.currentTile / this.tilesHorizontal );
-            texture.offset.y = currentRow / this.tilesVertical;
-        }
-    };
 }
