@@ -7,6 +7,5 @@ let app = new App({
 });
 app.init();
 
-document.getElementById('js-move-points').addEventListener('click', app.bigBang.bind(app));
 document.getElementById('js-focus-on-prev').addEventListener('click', app.nextStar.bind(app));
 document.getElementById('js-focus-on-next').addEventListener('click', app.previousStar.bind(app));

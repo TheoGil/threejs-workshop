@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import 'three/OrbitControls';
 import svgMesh3d from 'svg-mesh-3d';
 import TweenMax from 'gsap';
 import { EffectComposer, RenderPass, BokehPass, FilmPass } from "postprocessing";
@@ -9,6 +8,7 @@ import Vignette from './Vignette.js';
 import texture from '../img/star_spritesheet_12x25.png';
 import texture2 from '../img/particles_spritesheet_16x2.png';
 import dat from 'dat.gui/build/dat.gui.js';
+import throttle from 'throttle-debounce/throttle.js';
 
 export default class App {
     constructor (options) {
@@ -34,6 +34,7 @@ export default class App {
         this.initParticles();
         this.initPostprocessing();
         this.animate();
+        this.attachScroll();
     }
 
     initScene () {
@@ -50,13 +51,11 @@ export default class App {
         scene.fog = new THREE.FogExp2(0x1f1f86, 0.08);
 
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
         camera.position.z = 5;
 
         this.scene = scene;
         this.camera = camera;
         this.renderer = renderer;
-        this.controls = controls;
         this.cameraTarget = new THREE.Object3D();
 
         window.addEventListener('resize', () => {
@@ -177,7 +176,7 @@ export default class App {
         }
     }
 
-    animate (time) {
+    animate () {
         requestAnimationFrame(this.animate.bind(this));
         this.spriteAnimator.update(1000 * this.clock.getDelta());
         //this.renderer.render(this.scene, this.camera);
@@ -314,5 +313,24 @@ export default class App {
         });
         noiseFolder.open();
 
+        gui.closed = true;
+    }
+
+    attachScroll () {
+        document.getElementById('scene').addEventListener('wheel', throttle(150, function (e) {
+            if (Math.abs(e.deltaY) > 100) {
+                if (e.deltaY > 0) {
+                    if (this.isExploded) {
+                        this.previousStar();
+                    } else {
+                        this.bigBang();
+                    }
+                } else {
+                    if (this.isExploded) {
+                        this.nextStar();
+                    }
+                }
+            }
+        }.bind(this)));
     }
 }
