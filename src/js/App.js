@@ -4,25 +4,31 @@ import svgMesh3d from 'svg-mesh-3d';
 import TweenMax from 'gsap';
 import Star from './Star.js';
 import TextureAnimator from './TextureAnimator.js';
-import texture from './star_spritesheet_12x25.png';
+import Vignette from './Vignette.js';
+import texture from '../img/star_spritesheet_12x25.png';
+import texture2 from '../img/particles_spritesheet_16x2.png';
 
 export default class App {
     constructor (options) {
         this.canvas = options.canvas;
         this.stars = [];
         this.currentStarIndex = null;
-        this.starPositionMaxOffset = 1;
-        this.distanceBetweenStars = 1;
+        this.starPositionMaxOffset = 3;
+        this.distanceBetweenStars = 3;
         this.cameraDistanceFromTarget = 2;
-        this.starSize = 0.01;
+        this.starSize = 1;
+        this.particlesCount = 2000;
+        this.particlesDensity = 2000;
         this.isExploded = false;
     }
 
     init () {
         this.initScene();
+        this.initBackground();
         this.initStars();
         this.initLights();
         this.initAnimatedSprite();
+        this.initParticles();
         this.animate();
     }
 
@@ -35,6 +41,8 @@ export default class App {
             antialias: true,
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
+
+        scene.fog = new THREE.FogExp2(0x1f1f86, 0.08);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -53,10 +61,28 @@ export default class App {
         }, false);
     }
 
+    initBackground () {
+        const vignette = new Vignette();
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        vignette.style({
+            aspect: width / height,
+            aspectCorrection: true,
+            //scale: 1.5,
+            //offset: [-0.2, 0.25],
+            // ensure even grain scale based on width/height
+            grainScale: 1.5 / Math.min(width, height),
+            colors: [0x1f1f86, 0x20203e]
+        });
+        this.scene.add(vignette.mesh);
+    }
+
     initStars () {
         const svgPath = "M7 608L9 18l416 437-3-420h71v588L78 195v414z";
         const svgData = svgMesh3d(svgPath);
         const starCount = svgData.positions.length;
+
+        const texture = new THREE.TextureLoader().load(texture2);
 
         let lineMaterial = new THREE.LineBasicMaterial({
             color: 0x4793e3,
@@ -79,6 +105,7 @@ export default class App {
                 z: svgData.positions[i][2],
                 scene: this.scene,
                 explodedPosition: explodedPosition,
+                texture: texture,
             });
 
             lineGeometry.vertices.push(explodedPosition);
@@ -102,9 +129,33 @@ export default class App {
         });
         this.animatedSprite = new THREE.Sprite(material);
         this.animatedSprite.scale.set(.5, .5, .5);
-        console.log(this.animatedSprite);
         this.spriteAnimator = new TextureAnimator(spritesheet, 25, 12, 300, 120, this.animatedSprite); // texture, #horiz, #vert, #total, duration
         this.scene.add(this.animatedSprite);
+    }
+
+    initParticles () {
+        const geometry = new THREE.Geometry();
+        const texture = new THREE.TextureLoader().load(texture2);
+        for (let i = 0; i < this.particlesCount; i ++ ) {
+            const vertex = new THREE.Vector3();
+            vertex.x = (Math.random() * this.particlesDensity) - this.particlesDensity / 2;
+            vertex.y = (Math.random() * this.particlesDensity) - this.particlesDensity / 2;
+            vertex.z = (Math.random() * this.particlesDensity) - this.particlesDensity / 2;
+            geometry.vertices.push(vertex);
+        }
+        const material = new THREE.PointsMaterial({
+            size: 15,
+            sizeAttenuation: true,
+            map: texture,
+            opacity: .5,
+            color: 0xffffff,
+            transparent: true,
+            blending: THREE.AdditiveBlending
+        });
+        material.map.repeat.set(1 / 16, 1 / 2);
+        material.color.setHSL(1.0, 0.3, 0.7);
+        const particles = new THREE.Points(geometry, material);
+        this.scene.add( particles );
     }
 
     initLights () {
