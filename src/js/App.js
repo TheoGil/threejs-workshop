@@ -153,7 +153,6 @@ export default class App {
             sizeAttenuation: true,
             map: texture,
             opacity: .5,
-            color: 0xffffff,
             transparent: true,
             blending: THREE.AdditiveBlending
         });
@@ -181,9 +180,8 @@ export default class App {
     animate (time) {
         requestAnimationFrame(this.animate.bind(this));
         this.spriteAnimator.update(1000 * this.clock.getDelta());
-        //console.log(time)
-        this.renderer.render(this.scene, this.camera);
-        this.composer.render(this.clock.getDelta() / 10);
+        //this.renderer.render(this.scene, this.camera);
+        this.composer.render(1000 * this.clock.getDelta());
     }
 
     focusOn (position, index, speed) {
