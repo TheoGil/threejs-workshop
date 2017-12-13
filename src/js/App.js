@@ -8,6 +8,7 @@ export default class App {
     constructor (options) {
         this.canvas = options.canvas;
         this.stars = [];
+        this.currentStarIndex = null;
         this.starPositionMaxOffset = 1;
         this.distanceBetweenStars = 1;
         this.cameraDistanceFromTarget = 2;
@@ -31,13 +32,14 @@ export default class App {
         renderer.setSize(window.innerWidth, window.innerHeight);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        //const controls = new THREE.OrbitControls(camera, renderer.domElement);
         camera.position.z = this.cameraDistanceFromTarget;
 
         this.scene = scene;
         this.camera = camera;
         this.renderer = renderer;
-        this.controls = controls;
+        //this.controls = controls;
+        this.cameraTarget = new THREE.Object3D();
 
         window.addEventListener('resize', () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -67,6 +69,8 @@ export default class App {
             this.stars.push(star);
             star.append();
         }
+
+        this.stars[this.stars.length - 1].material.color.setHex(0xff0000);
     }
 
     initLights () {
@@ -89,7 +93,45 @@ export default class App {
         this.renderer.render(this.scene, this.camera);
     }
 
-    disperseParticules () {
+    focusOn (position, index, speed) {
+        console.log(position);
+        this.currentStarIndex = index;
+
+        TweenMax.to(this.camera.position, speed, {
+            x: position.x,
+            y: position.y,
+            z: position.z + .5,
+            onUpdate: this.camera.lookAt(this.cameraTarget.position),
+        });
+
+        TweenMax.to(this.cameraTarget.position, speed * .5, {
+            x: position.x,
+            y: position.y,
+            z: position.z
+        });
+    }
+
+    nextStar () {
+        if (this.currentStarIndex < this.stars.length - 1) {
+            const newIndex = this.currentStarIndex + 1;
+            const newStar = this.stars[newIndex];
+            this.focusOn(newStar.mesh.position, newIndex, .5);
+        }
+    }
+
+    previousStar () {
+        if (this.currentStarIndex > 0) {
+            const newIndex = this.currentStarIndex - 1;
+            const newStar = this.stars[newIndex];
+            this.focusOn(newStar.mesh.position, newIndex, .5);
+        }
+    }
+
+    bigBang () {
+        const index = this.stars.length - 1;
+        const lastStar = this.stars[index];
+        this.focusOn(lastStar.explodedPosition, index, 2);
+
         for (let i = 0; i < this.stars.length; i++) {
             TweenMax.to(this.stars[i].mesh.position, .5, {
                 x: this.isExploded ? this.stars[i].originalPosition.x : this.stars[i].explodedPosition.x,

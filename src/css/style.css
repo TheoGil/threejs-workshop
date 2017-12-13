@@ -12,3 +12,16 @@ canvas {
   left: 10px;
   z-index: 1;
 }
+
+nav {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateX(-50%);
+}
+nav svg {
+  fill: white;
+  width: 50px;
+  display: block;
+  cursor: pointer;
+}
