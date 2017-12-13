@@ -58,31 +58,37 @@ export default class App {
         const svgData = svgMesh3d(svgPath);
         const starCount = svgData.positions.length;
 
-        const points = [];
+        let lineMaterial = new THREE.LineBasicMaterial({
+            color: 0x4793e3,
+            transparent: true,
+            opacity: 0,
+        });
+        let lineGeometry = new THREE.Geometry();
 
         for (let i = 0; i < starCount; i++) {
+            const explodedPosition = new THREE.Vector3(
+                Math.random() * this.starPositionMaxOffset,
+                Math.random() * this.starPositionMaxOffset,
+                -(i * this.distanceBetweenStars)
+            );
+
             let star = new Star({
                 radius: this.starSize,
                 x: svgData.positions[i][0],
                 y: svgData.positions[i][1],
                 z: svgData.positions[i][2],
                 scene: this.scene,
-                explodedPosition: new THREE.Vector3(
-                    Math.random() * this.starPositionMaxOffset,
-                    Math.random() * this.starPositionMaxOffset,
-                    -(i * this.distanceBetweenStars)
-                ),
+                explodedPosition: explodedPosition,
             });
 
-            points.push(new THREE.Vector3(
-                svgData.positions[i][0],
-                svgData.positions[i][1],
-                svgData.positions[i][2])
-            );
+            lineGeometry.vertices.push(explodedPosition);
 
             this.stars.push(star);
             star.append();
         }
+
+        this.line = new THREE.Line(lineGeometry, lineMaterial);
+        this.scene.add(this.line);
     }
 
     initAnimatedSprite () {
@@ -179,6 +185,10 @@ export default class App {
                 z: this.isExploded ? this.stars[i].originalPosition.z : this.stars[i].explodedPosition.z,
             });
         }
+
+        TweenMax.to(this.line.material, .5, {
+            opacity: 1,
+        });
 
         this.isExploded = !this.isExploded;
     }
