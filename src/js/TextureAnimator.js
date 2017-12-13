@@ -21,7 +21,6 @@ export default class TextureAnimator {
         this.currentTile = 0;
 
         this.mesh = mesh;
-        console.log(this.mesh);
     }
 
     update ( milliSec ) {

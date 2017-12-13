@@ -2,11 +2,13 @@ import * as THREE from 'three';
 import 'three/OrbitControls';
 import svgMesh3d from 'svg-mesh-3d';
 import TweenMax from 'gsap';
+import { EffectComposer, RenderPass, BokehPass } from "postprocessing";
 import Star from './Star.js';
 import TextureAnimator from './TextureAnimator.js';
 import Vignette from './Vignette.js';
 import texture from '../img/star_spritesheet_12x25.png';
 import texture2 from '../img/particles_spritesheet_16x2.png';
+import dat from 'dat.gui/build/dat.gui.js';
 
 export default class App {
     constructor (options) {
@@ -20,6 +22,7 @@ export default class App {
         this.particlesCount = 2000;
         this.particlesDensity = 2000;
         this.isExploded = false;
+        this.postprocessing = {};
     }
 
     init () {
@@ -29,6 +32,7 @@ export default class App {
         this.initLights();
         this.initAnimatedSprite();
         this.initParticles();
+        this.initPostprocessing();
         this.animate();
     }
 
@@ -38,15 +42,16 @@ export default class App {
         const scene = new THREE.Scene();
         const renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
-            antialias: true,
+            logarithmicDepthBuffer: true,
+            antialias: true
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
         scene.fog = new THREE.FogExp2(0x1f1f86, 0.08);
 
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        camera.position.z = 2;
+        camera.position.z = 5;
 
         this.scene = scene;
         this.camera = camera;
@@ -176,7 +181,8 @@ export default class App {
     animate () {
         requestAnimationFrame(this.animate.bind(this));
         this.spriteAnimator.update(1000 * this.clock.getDelta());
-        this.renderer.render(this.scene, this.camera);
+        //this.renderer.render(this.scene, this.camera);
+        this.composer.render();
     }
 
     focusOn (position, index, speed) {
@@ -242,5 +248,52 @@ export default class App {
         });
 
         this.isExploded = !this.isExploded;
+    }
+
+    initPostprocessing() {
+        this.composer = new EffectComposer(this.renderer, {
+            stencilBuffer: true,
+            depthTexture: true
+        });
+        this.composer.addPass(new RenderPass(this.scene, this.camera));
+
+        const bokehPass = new BokehPass(this.camera, {
+            focus: 0.767,
+            dof: 0,
+            aperture: 0.0145,
+            maxBlur: 0.1
+        });
+        bokehPass.renderToScreen = true;
+        this.composer.addPass(bokehPass);
+
+
+
+
+        ////////////////////////////////////////////////////
+
+        const params = {
+            "focus": bokehPass.bokehMaterial.uniforms.focus.value,
+            "dof": bokehPass.bokehMaterial.uniforms.dof.value,
+            "aperture": bokehPass.bokehMaterial.uniforms.aperture.value,
+            "blur": bokehPass.bokehMaterial.uniforms.maxBlur.value
+        };
+
+        var gui = new dat.GUI();
+
+        gui.add(params, "focus").min(0.0).max(1.0).step(0.001).onChange(function() {
+            bokehPass.bokehMaterial.uniforms.focus.value = params.focus;
+        });
+
+        gui.add(params, "dof").min(0.0).max(1.0).step(0.001).onChange(function() {
+            bokehPass.bokehMaterial.uniforms.dof.value = params.dof;
+        });
+
+        gui.add(params, "aperture").min(0.0).max(0.05).step(0.0001).onChange(function() {
+            bokehPass.bokehMaterial.uniforms.aperture.value = params.aperture;
+        });
+
+        gui.add(params, "blur").min(0.0).max(0.1).step(0.001).onChange(function() {
+            bokehPass.bokehMaterial.uniforms.maxBlur.value = params.blur;
+        });
     }
 }
