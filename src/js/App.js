@@ -39,6 +39,11 @@ export default class App {
 
     initScene () {
         this.clock = new THREE.Clock();
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this.windowHalfX = window.innerWidth / 2;
+        this.windowHalfY = window.innerHeight / 2;
+
         // Set up the scene
         const scene = new THREE.Scene();
         const renderer = new THREE.WebGLRenderer({
@@ -62,6 +67,13 @@ export default class App {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.windowHalfX = window.innerWidth / 2;
+            this.windowHalfY = window.innerHeight / 2;
+        }, false);
+
+        window.addEventListener('mousemove', () => {
+            this.mouseX = event.clientX - this.windowHalfX;
+            this.mouseY = event.clientY - this.windowHalfY;
         }, false);
     }
 
@@ -178,7 +190,12 @@ export default class App {
 
     animate () {
         requestAnimationFrame(this.animate.bind(this));
+
         this.spriteAnimator.update(1000 * this.clock.getDelta());
+        this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.00001;
+        this.camera.position.y += (-this.mouseY - this.camera.position.y) * 0.00001;
+        this.camera.lookAt(this.cameraTarget.position);
+
         //this.renderer.render(this.scene, this.camera);
         this.composer.render(1000 * this.clock.getDelta());
     }
