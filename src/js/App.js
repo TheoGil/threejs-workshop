@@ -3,6 +3,7 @@ import 'three/OrbitControls';
 import svgMesh3d from 'svg-mesh-3d';
 import TweenMax from 'gsap';
 import Star from './Star.js';
+import texture from './star_spritesheet_12x25.png';
 
 export default class App {
     constructor (options) {
@@ -20,25 +21,28 @@ export default class App {
         this.initScene();
         this.initStars();
         this.initLights();
+        this.initAnimatedSprite();
         this.animate();
     }
 
     initScene () {
+        this.clock = new THREE.Clock();
         // Set up the scene
         const scene = new THREE.Scene();
         const renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
+            antialias: true,
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        //const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        camera.position.z = this.cameraDistanceFromTarget;
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        camera.position.z = 2;
 
         this.scene = scene;
         this.camera = camera;
         this.renderer = renderer;
-        //this.controls = controls;
+        this.controls = controls;
         this.cameraTarget = new THREE.Object3D();
 
         window.addEventListener('resize', () => {
@@ -53,6 +57,8 @@ export default class App {
         const svgData = svgMesh3d(svgPath);
         const starCount = svgData.positions.length;
 
+        const points = [];
+
         for (let i = 0; i < starCount; i++) {
             let star = new Star({
                 radius: this.starSize,
@@ -66,11 +72,32 @@ export default class App {
                     -(i * this.distanceBetweenStars)
                 ),
             });
+
+            points.push(new THREE.Vector3(
+                svgData.positions[i][0],
+                svgData.positions[i][1],
+                svgData.positions[i][2])
+            );
+
             this.stars.push(star);
             star.append();
         }
+    }
 
-        this.stars[this.stars.length - 1].material.color.setHex(0xff0000);
+    initAnimatedSprite () {
+        const spritesheet = new THREE.TextureLoader().load(texture);
+        this.annie = new TextureAnimator(spritesheet, 25, 12, 300, 120); // texture, #horiz, #vert, #total, duration
+        const material = new THREE.PointsMaterial({
+            size: 0.5,
+            map: spritesheet,
+            transparent: true,
+            opacity: 0,
+            blending: THREE.AdditiveBlending
+        });
+        const geometry = new THREE.Geometry();
+        geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+        this.animatedSprite = new THREE.Points(geometry, material);
+        this.scene.add(this.animatedSprite);
     }
 
     initLights () {
@@ -90,17 +117,18 @@ export default class App {
 
     animate () {
         requestAnimationFrame(this.animate.bind(this));
+        var delta = this.clock.getDelta();
+        this.annie.update(1000 * delta);
         this.renderer.render(this.scene, this.camera);
     }
 
     focusOn (position, index, speed) {
-        console.log(position);
         this.currentStarIndex = index;
 
         TweenMax.to(this.camera.position, speed, {
             x: position.x,
             y: position.y,
-            z: position.z + .5,
+            z: position.z + this.cameraDistanceFromTarget,
             onUpdate: this.camera.lookAt(this.cameraTarget.position),
         });
 
@@ -108,6 +136,17 @@ export default class App {
             x: position.x,
             y: position.y,
             z: position.z
+        });
+
+        TweenMax.to(this.animatedSprite.material, .25, {
+            opacity: 0,
+            onComplete: function () {
+                this.animatedSprite.position.set(position.x, position.y, position.z + 0.01);
+
+                TweenMax.to(this.animatedSprite.material, .25, {
+                    opacity: 1,
+                });
+            }.bind(this)
         });
     }
 
@@ -130,6 +169,7 @@ export default class App {
     bigBang () {
         const index = this.stars.length - 1;
         const lastStar = this.stars[index];
+        this.animatedSprite.position.set(lastStar.explodedPosition.x, lastStar.explodedPosition.y, lastStar.explodedPosition.z + 0.01);
         this.focusOn(lastStar.explodedPosition, index, 2);
 
         for (let i = 0; i < this.stars.length; i++) {
@@ -142,4 +182,43 @@ export default class App {
 
         this.isExploded = !this.isExploded;
     }
+}
+
+function TextureAnimator(texture, tilesHoriz, tilesVert, numTiles, tileDispDuration)
+{
+    // note: texture passed by reference, will be updated by the update function.
+
+    this.tilesHorizontal = tilesHoriz;
+    this.tilesVertical = tilesVert;
+    // how many images does this spritesheet contain?
+    //  usually equals tilesHoriz * tilesVert, but not necessarily,
+    //  if there at blank tiles at the bottom of the spritesheet.
+    this.numberOfTiles = numTiles;
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set( 1 / this.tilesHorizontal, 1 / this.tilesVertical );
+
+    // how long should each image be displayed?
+    this.tileDisplayDuration = tileDispDuration;
+
+    // how long has the current image been displayed?
+    this.currentDisplayTime = 0;
+
+    // which image is currently being displayed?
+    this.currentTile = 0;
+
+    this.update = function( milliSec )
+    {
+        this.currentDisplayTime += milliSec;
+        while (this.currentDisplayTime > this.tileDisplayDuration)
+        {
+            this.currentDisplayTime -= this.tileDisplayDuration;
+            this.currentTile++;
+            if (this.currentTile == this.numberOfTiles)
+                this.currentTile = 0;
+            var currentColumn = this.currentTile % this.tilesHorizontal;
+            texture.offset.x = currentColumn / this.tilesHorizontal;
+            var currentRow = Math.floor( this.currentTile / this.tilesHorizontal );
+            texture.offset.y = currentRow / this.tilesVertical;
+        }
+    };
 }
