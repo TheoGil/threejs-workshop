@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import 'three/OrbitControls';
 import svgMesh3d from 'svg-mesh-3d';
 import TweenMax from 'gsap';
-import { EffectComposer, RenderPass, BokehPass } from "postprocessing";
+import { EffectComposer, RenderPass, BokehPass, FilmPass } from "postprocessing";
 import Star from './Star.js';
 import TextureAnimator from './TextureAnimator.js';
 import Vignette from './Vignette.js';
@@ -178,11 +178,12 @@ export default class App {
         }
     }
 
-    animate () {
+    animate (time) {
         requestAnimationFrame(this.animate.bind(this));
         this.spriteAnimator.update(1000 * this.clock.getDelta());
-        //this.renderer.render(this.scene, this.camera);
-        this.composer.render();
+        //console.log(time)
+        this.renderer.render(this.scene, this.camera);
+        this.composer.render(this.clock.getDelta() / 10);
     }
 
     focusOn (position, index, speed) {
@@ -258,42 +259,62 @@ export default class App {
         this.composer.addPass(new RenderPass(this.scene, this.camera));
 
         const bokehPass = new BokehPass(this.camera, {
-            focus: 0.767,
-            dof: 0,
-            aperture: 0.0145,
-            maxBlur: 0.1
+            focus: 0.32,
+            dof: 0.02,
+            aperture: 0.015,
+            maxBlur: 0.025
         });
-        bokehPass.renderToScreen = true;
+        bokehPass.renderToScreen = false;
         this.composer.addPass(bokehPass);
 
+        const filmPass = new FilmPass({
+            grayscale: false,
+            sepia: false,
+            vignette: true,
+            eskil: true,
+            scanlines: false,
+            noise: true,
+            noiseIntensity: 0.5,
+            scanlineIntensity: 0.5,
+            scanlineDensity: 1.5,
+            greyscaleIntensity: 1.0,
+            sepiaIntensity: 0.5,
+            vignetteOffset: 1.0,
+            vignetteDarkness: 1.0
+        });
+        filmPass.renderToScreen = true;
+        this.composer.addPass(filmPass);
 
-
-
-        ////////////////////////////////////////////////////
+        const gui = new dat.GUI();
 
         const params = {
             "focus": bokehPass.bokehMaterial.uniforms.focus.value,
             "dof": bokehPass.bokehMaterial.uniforms.dof.value,
             "aperture": bokehPass.bokehMaterial.uniforms.aperture.value,
-            "blur": bokehPass.bokehMaterial.uniforms.maxBlur.value
+            "blur": bokehPass.bokehMaterial.uniforms.maxBlur.value,
+            "noise intensity": filmPass.material.uniforms.noiseIntensity.value,
         };
 
-        var gui = new dat.GUI();
-
-        gui.add(params, "focus").min(0.0).max(1.0).step(0.001).onChange(function() {
+        let doFolder = gui.addFolder("DOF");
+        doFolder.add(params, "focus").min(0.0).max(1.0).step(0.001).onChange(function() {
             bokehPass.bokehMaterial.uniforms.focus.value = params.focus;
         });
-
-        gui.add(params, "dof").min(0.0).max(1.0).step(0.001).onChange(function() {
+        doFolder.add(params, "dof").min(0.0).max(1.0).step(0.001).onChange(function() {
             bokehPass.bokehMaterial.uniforms.dof.value = params.dof;
         });
-
-        gui.add(params, "aperture").min(0.0).max(0.05).step(0.0001).onChange(function() {
+        doFolder.add(params, "aperture").min(0.0).max(0.05).step(0.0001).onChange(function() {
             bokehPass.bokehMaterial.uniforms.aperture.value = params.aperture;
         });
-
-        gui.add(params, "blur").min(0.0).max(0.1).step(0.001).onChange(function() {
+        doFolder.add(params, "blur").min(0.0).max(0.1).step(0.001).onChange(function() {
             bokehPass.bokehMaterial.uniforms.maxBlur.value = params.blur;
         });
+        doFolder.open();
+
+        let noiseFolder = gui.addFolder("Noise");
+        noiseFolder.add(params, "noise intensity").min(0.0).max(1.0).step(0.01).onChange(function() {
+            filmPass.material.uniforms.noiseIntensity.value = params["noise intensity"];
+        });
+        noiseFolder.open();
+
     }
 }
