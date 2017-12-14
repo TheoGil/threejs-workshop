@@ -19,8 +19,8 @@ export default class App {
         this.distanceBetweenStars = 3;
         this.cameraDistanceFromTarget = 2;
         this.starSize = 1;
-        this.particlesCount = 2000;
-        this.particlesDensity = 2000;
+        this.particlesCount = 1000;
+        this.particlesDensity = 1000;
         this.isExploded = false;
         this.postprocessing = {};
     }
@@ -49,7 +49,6 @@ export default class App {
         const renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
             logarithmicDepthBuffer: true,
-            antialias: true
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -104,11 +103,11 @@ export default class App {
             color: 0x4793e3,
             transparent: true,
             opacity: 0,
-            blending: THREE.AdditiveBlending,
+            //blending: THREE.AdditiveBlending,
         });
         let lineGeometry = new THREE.Geometry();
 
-        for (let i = 0; i < starCount; i++) {
+        for (let i = 0; i < svgData.positions.length; i++) {
             const explodedPosition = new THREE.Vector3(
                 Math.random() * this.starPositionMaxOffset,
                 Math.random() * this.starPositionMaxOffset,
@@ -123,6 +122,7 @@ export default class App {
                 scene: this.scene,
                 explodedPosition: explodedPosition,
                 texture: texture,
+                id: i,
             });
 
             lineGeometry.vertices.push(explodedPosition);
@@ -142,7 +142,7 @@ export default class App {
             map: spritesheet,
             transparent: true,
             opacity: 0,
-            blending: THREE.AdditiveBlending
+            //blending: THREE.AdditiveBlending
         });
         this.animatedSprite = new THREE.Sprite(material);
         this.animatedSprite.scale.set(.5, .5, .5);
@@ -192,7 +192,7 @@ export default class App {
     animate () {
         requestAnimationFrame(this.animate.bind(this));
 
-        this.spriteAnimator.update(1000 * this.clock.getDelta());
+        //this.spriteAnimator.update(1000 * this.clock.getDelta());
         this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.00001;
         this.camera.position.y += (-this.mouseY - this.camera.position.y) * 0.00001;
         this.camera.lookAt(this.cameraTarget.position);
@@ -202,7 +202,16 @@ export default class App {
     }
 
     focusOn (position, index, speed) {
+        // Unfocus previous
+        const previous = this.stars[this.currentStarIndex];
+        if (previous) {
+            previous.hide();
+        }
+
         this.currentStarIndex = index;
+
+
+        this.stars[this.currentStarIndex].show();
 
         TweenMax.to(this.camera.position, speed, {
             x: position.x,
@@ -211,7 +220,7 @@ export default class App {
             onUpdate: this.camera.lookAt(this.cameraTarget.position),
         });
 
-        TweenMax.to(this.cameraTarget.position, speed * .5, {
+        TweenMax.to(this.cameraTarget.position, speed, {
             x: position.x,
             y: position.y,
             z: position.z
@@ -335,7 +344,7 @@ export default class App {
     }
 
     attachScroll () {
-        document.getElementById('scene').addEventListener('wheel', throttle(150, function (e) {
+        window.addEventListener('wheel', throttle(150, function (e) {
             if (Math.abs(e.deltaY) > 100) {
                 if (e.deltaY > 0) {
                     if (this.isExploded) {
