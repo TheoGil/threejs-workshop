@@ -32,6 +32,7 @@
     "dat.gui": "^0.6.5",
     "gsap": "^1.20.3",
     "postprocessing": "^3.1.0",
+    "stats.js": "^0.17.0",
     "svg-mesh-3d": "^1.1.0",
     "three": "^0.88.0",
     "three-addons": "^1.1.0",

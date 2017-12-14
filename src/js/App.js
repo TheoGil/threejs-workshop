@@ -15,7 +15,7 @@ export default class App {
         this.canvas = options.canvas;
         this.stars = [];
         this.currentStarIndex = null;
-        this.starPositionMaxOffset = 3;
+        this.starPositionMaxOffset = 1;
         this.distanceBetweenStars = 3;
         this.cameraDistanceFromTarget = 2;
         this.starSize = 1;
@@ -104,6 +104,7 @@ export default class App {
             color: 0x4793e3,
             transparent: true,
             opacity: 0,
+            blending: THREE.AdditiveBlending,
         });
         let lineGeometry = new THREE.Geometry();
 
@@ -232,7 +233,7 @@ export default class App {
         if (this.currentStarIndex < this.stars.length - 1) {
             const newIndex = this.currentStarIndex + 1;
             const newStar = this.stars[newIndex];
-            this.focusOn(newStar.mesh.position, newIndex, .5);
+            this.focusOn(newStar.mesh.position, newIndex, 1);
         }
     }
 
@@ -240,7 +241,7 @@ export default class App {
         if (this.currentStarIndex > 0) {
             const newIndex = this.currentStarIndex - 1;
             const newStar = this.stars[newIndex];
-            this.focusOn(newStar.mesh.position, newIndex, .5);
+            this.focusOn(newStar.mesh.position, newIndex, 1);
         }
     }
 
