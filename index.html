@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display|Roboto+Condensed" rel="stylesheet">
+    <title>THREE.js Workshop</title>
+  <link href="styles.css" rel="stylesheet"></head>
+  <body>
+    <div class="container">
+      <canvas id="scene"></canvas>
+      <nav id="js-nav" class="nav">
+        <svg viewBox="0 0 20 20" id="js-focus-on-prev">
+          <path d="M2.582 13.891c-0.272 0.268-0.709 0.268-0.979 0s-0.271-0.701 0-0.969l7.908-7.83c0.27-0.268 0.707-0.268 0.979 0l7.908 7.83c0.27 0.268 0.27 0.701 0 0.969s-0.709 0.268-0.978 0l-7.42-7.141-7.418 7.141z"></path>
+        </svg>
+        <svg viewBox="0 0 20 20" id="js-focus-on-next">
+          <path d="M17.418 6.109c0.272-0.268 0.709-0.268 0.979 0s0.271 0.701 0 0.969l-7.908 7.83c-0.27 0.268-0.707 0.268-0.979 0l-7.908-7.83c-0.27-0.268-0.27-0.701 0-0.969s0.709-0.268 0.979 0l7.419 7.141 7.418-7.141z"></path>
+        </svg>
+      </nav>
+      <ul id="js-timeline" class="timeline">
+
+      </ul>
+
+      <div class="hub">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 541.59998 514.90002">
+          <path fill="#cffcff" d="M106 0h74v2h-73L2 107v72H0v-73zm329 2h-73V0h73l107 106v73h-2v-72zm0 511l105-105v-72h2v73L435 515h-73v-2zM0 336h2v72l105 105h73v2h-74L0 409z"/>
+        </svg>
+      </div>
+      <div class="hub hub-circle-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 429.79999 429.79999">
+          <path d="M215 430h-9v-1h9v1zm8 0v-1l8-1 1 1-9 1zm-25-1l-9-1 1-1 8 1v1zm42-1v-1l8-1v1l-8 1zm-59-1l-8-1v-1l8 1v1zm76-1l-1-1 9-2v1l-8 2zm-92-2l-9-2 1-1 8 2v1zm108-2v-1l8-2-8 3zm-125-3l-8-3 9 2-1 1zm141-2v-1l8-3v1l-8 3zm-157-4l-7-3v-1l8 4h-1zm173-3l-1-1 8-3-7 4zm-188-4l-7-4v-1l8 4-1 1zm203-3l-1-1 7-4h1l-7 5zm-218-5l-7-5h1l7 4-1 1zm232-4v-1l6-5 1 1-7 5zm-246-5l-7-6h1l7 5-1 1zm260-5l-1-1 7-5v1l-6 5zm-273-6l-6-6 7 5-1 1zm286-5l-1-1 6-6 1 1-6 6zm-298-6l-6-7 6 6v1zm309-6v-1l5-6 1 1-6 6zm-321-7l-5-6 1-1 5 7h-1zm332-6l5-7h1l-6 7zm-342-7l-5-7 1-1 4 7v1zm352-7l4-7h1l-5 7zm-362-7l-4-7 1-1 4 7-1 1zm371-7h-1l4-8 1 1-4 7zm-379-8l-4-7 1-1 4 8h-1zm387-7h-1l3-8h1l-3 8zm-394-8l-3-8h1l3 7-1 1zm400-8l2-8h1l-3 8zm-406-8l-2-8h1l2 8h-1zm412-8h-1l2-8h1l-2 8zM6 265l-2-9h1l2 8-1 1zm420-8h-1l1-9h1l-1 9zM2 248l-1-8h1l1 8H2zm426-8h-1l1-8h1l-1 8zM1 231l-1-8h1v8zm429-8h-1v-8h1v8zM1 214H0v-8h1v8zm428-7l-1-8h1l1 8h-1zM2 198l-1-1v-8h1v9zm425-7l-1-9h1l1 9h-1zM4 181H3l1-9 1 1-1 8zm421-7l-2-8h1l2 8h-1zM7 164H6l2-8h1l-2 8zm414-6l-2-9h1l2 8-1 1zM12 148h-1l2-8h1l-3 8zm404-6l-3-8 1-1 3 8-1 1zM17 132h-1l4-8 1 1-4 7zm393-6l-4-8h1l3 8zm-386-9l4-8v1l-4 7zm378-6l-4-7 1-1 4 8h-1zm-369-9h-1l5-7-4 7zm360-5l-5-7 1-1 5 7-1 1zM42 89l-1-1 5-7 1 1-5 7zm341-6l-5-6 1-1 5 6-1 1zM53 75h-1l5-7 1 1-5 6zm320-5l-6-6v-1l6 7zM64 63l-1-1 6-5h1l-6 6zm297-5l-6-5v-1l6 6zM77 52l-1-1 6-5h1l-6 6zm271-5l-7-5 1-1 7 6h-1zM90 41h-1l7-5 1 1-7 4zm245-4l-8-4 1-1 7 5zm-231-5l-1-1 8-4v1l-7 4zm216-3l-7-4v-1l8 4-1 1zm-202-5v-1l8-4v1l-8 4zm187-3l-7-4 8 3-1 1zm-171-4l-1-1 8-3v1l-7 3zm156-3l-8-2v-1l8 2v1zm-141-3v-1l8-2 1 1-9 2zm125-2l-8-2V6l8 2v1zM166 7l-1-1 9-2v1l-8 2zm91-2l-8-1V3l8 1v1zm-75-2V2l8-1 1 1-9 1zm59-1h-9V1l9 1zm-42-1l8-1v1h-8zm25 0h-8V0h8v1z" fill="#cffcff"/>
+        </svg>
+      </div>
+      <div class="hub hub-circle-2">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390.29999 352.20001">
+          <path d="M111 351a194 194 0 0 1 0-349V0A194 194 0 0 0 0 176a195 195 0 0 0 111 176v-1zm264-251a194 194 0 0 0-85-95v2a196 196 0 0 1 99 169 193 193 0 0 1-99 170v1a197 197 0 0 0 100-170c0-27-5-53-15-77z" fill="#cffcff"/>
+        </svg>
+      </div>
+      <div class="hub hub-circle-3">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 338.29999 258.47882">
+          <path d="M34 35l1 1 2-1 6-7v-3h-3l-6 8v2zM2 123l2-2 1-9-2-2-2 1-1 10 2 2zM47 22h1L71 3l1-1c0-2-2-2-3-2L46 19v3h1zM4 135v-6l-2-2-2 2v6c1 22 6 43 15 62l2 1h1l1-3c-9-18-14-39-15-60zm0-30l2-1c3-21 11-40 23-58l3-5v-3l-3 1-3 5C14 62 6 82 2 103l2 2zm19 98c-1-1-2-2-3-1l-1 2 6 9 1 1 1-1 1-2-5-8zm49 54l-1-2c-14-9-25-20-36-33l-3-5-3-1v3l4 5c10 14 22 25 36 34 1 1 3 0 3-1zM304 35l-1 1-1-1-6-7v-3h2l7 8-1 2zm32 88l-2-2v-9l1-2 2 1 1 10-2 2zM291 22h-1L267 3V2c0-2 1-2 2-2 9 6 16 12 23 19v3h-1zm44 113v-6l2-2 1 2v6c-1 22-6 43-15 62l-2 1h-1v-3c9-18 14-39 15-60zm0-30h-1l-1-1c-4-21-12-40-23-58l-4-5v-3l3 1 4 5c12 18 19 38 23 59l-1 2zm-19 98c0-1 1-2 2-1l1 2-5 9-2 1-1-1v-2l5-8zm-49 54v-2c14-9 26-20 36-33l4-5 2-1c1 1 2 2 1 3l-4 5c-10 14-23 25-37 34-1 1-2 0-2-1z" fill="#cffcff"/>
+        </svg>
+      </div>
+      <template id="js-template">
+        <article>
+          <figure class="timeline-item-cover">
+            <img src="https://source.unsplash.com/random/400x400" alt="">
+          </figure>
+          <div class="timeline-item-front">
+            <div class="timeline-item-director">
+              <span class="label">Projet n°</span><span class="js-project-id"></span>
+            </div>
+            <h3 class="timeline-item-title">OFAJ</h3>
+            <div class="timeline-item-description">Fusce convallis metus id felis luctus adipiscing.. Cras ultricies mi eu turpis hendrerit fringilla. Suspendisse feugiat. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo.</div>
+            <a href="#" class="timeline-item-link">Voir l'étude de cas</a>
+          </div>
+        </article>
+      </template>
+    </div>
+    <div class="button-container">
+      <div class="button-container-inside" id="js-button-launch">
+        <svg xmlns="http://www.w3.org/2000/svg" width="498" height="75" class="button-hub">
+          <path fill="#cffcff" d="M436 72v2H24L0 50V14h2v35l23 23zm62-50v34h-2V23L478 4H94V2h384z"/>
+          <path fill="#cffcff" d="M491 12l-3 4-11-11h-47V0h49zM72 70v5H23L10 63l4-4 11 11z"/>
+        </svg>
+        <span class="button-container-label">
+            Découvrez notre rétrospective 2017
+        </span>
+      </div>
+    </div>
+  <script type="text/javascript" src="bundle.js"></script></body>
+</html>
