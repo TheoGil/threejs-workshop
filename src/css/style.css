@@ -1,11 +1,16 @@
 body {
   overflow: hidden;
-
+  background: #1f1f86;
 }
 
 .container {
   height: 100vh;
   width: 100vw;
+  background-image:
+    radial-gradient(
+      #1f1f86,
+      #20203e
+    );
 }
 canvas {
   position: absolute;
@@ -20,6 +25,7 @@ canvas {
 
 nav {
   position: absolute;
+  z-index: 1000;
   right: 10px;
   top: 50%;
   transform: translateX(-50%);
@@ -192,7 +198,46 @@ nav svg {
   }
 }
 
+.hub {
+  pointer-events: none;
+}
 .hub svg {
+  pointer-events: none;
   width: 100%;
   height: 100%;
+}
+
+.button-container {
+  position: absolute;
+  bottom: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.button-container-inside {
+  position: relative;
+  height: 75px;
+  width: 498px;
+  cursor: pointer;
+}
+
+.button-container svg {
+  position: absolute;
+}
+
+.button-container-label {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  color: white;
+  right: 0;
+  text-align: center;
+  font-size: 27px;
+  font-family: "Roboto Condensed",sans-serif;
+}
+
+.nav {
+  opacity: 0;
+  transform: translateY(50px);
 }

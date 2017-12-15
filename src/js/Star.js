@@ -20,10 +20,8 @@ export default class Star {
         this.mesh = new THREE.Sprite(this.material);
         this.mesh.scale.set(.2, .2, .2);
         */
-        this.geometry = new THREE.SphereGeometry(0.025, 32, 32);
-        this.material = new THREE.MeshBasicMaterial( {
-            color: 0xffffff,
-        });
+        this.geometry = options.geometry;
+        this.material = options.material;
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
         this.mesh.position.set(options.x, options.y, options.z);
@@ -54,8 +52,6 @@ export default class Star {
 
     show () {
         // N° projet
-        console.log(Expo.easeOut);
-
         TweenMax.to(this.html.getElementsByClassName('timeline-item-director')[0], 0.25, {
             delay: this.animationDelay * 4,
             css: {
@@ -67,7 +63,6 @@ export default class Star {
         });
 
         // Titre
-        console.log(this.html.getElementsByClassName('timeline-item-title'));
         TweenMax.to(this.html.getElementsByClassName('timeline-item-title')[0], 0.25, {
             delay: this.animationDelay * 5,
             css: {

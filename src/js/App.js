@@ -27,7 +27,7 @@ export default class App {
 
     init () {
         this.initScene();
-        this.initBackground();
+        //this.initBackground();
         this.initStars();
         this.initLights();
         this.initAnimatedSprite();
@@ -48,7 +48,7 @@ export default class App {
         const scene = new THREE.Scene();
         const renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
-            logarithmicDepthBuffer: true,
+            alpha: true
         });
         renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -107,6 +107,11 @@ export default class App {
         });
         let lineGeometry = new THREE.Geometry();
 
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+        });
+        const geometry = new THREE.SphereGeometry(0.025, 32, 32);
+
         for (let i = 0; i < svgData.positions.length; i++) {
             const explodedPosition = new THREE.Vector3(
                 Math.random() * this.starPositionMaxOffset,
@@ -123,6 +128,8 @@ export default class App {
                 explodedPosition: explodedPosition,
                 texture: texture,
                 id: i,
+                material: material,
+                geometry: geometry,
             });
 
             lineGeometry.vertices.push(explodedPosition);
@@ -157,7 +164,7 @@ export default class App {
             const vertex = new THREE.Vector3();
             vertex.x = (Math.random() * this.particlesDensity) - this.particlesDensity / 2;
             vertex.y = (Math.random() * this.particlesDensity) - this.particlesDensity / 2;
-            vertex.z = (Math.random() * this.particlesDensity) - this.particlesDensity / 2;
+            vertex.z = -(Math.random() * this.particlesDensity);
             geometry.vertices.push(vertex);
         }
         const material = new THREE.PointsMaterial({
@@ -171,7 +178,7 @@ export default class App {
         material.map.repeat.set(1 / 16, 1 / 2);
         material.color.setHSL(1.0, 0.3, 0.7);
         const particles = new THREE.Points(geometry, material);
-        this.scene.add( particles );
+        this.scene.add(particles);
     }
 
     initLights () {
@@ -193,11 +200,11 @@ export default class App {
         requestAnimationFrame(this.animate.bind(this));
 
         //this.spriteAnimator.update(1000 * this.clock.getDelta());
-        this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.00001;
-        this.camera.position.y += (-this.mouseY - this.camera.position.y) * 0.00001;
-        this.camera.lookAt(this.cameraTarget.position);
+        //this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.00001;
+        //this.camera.position.y += (-this.mouseY - this.camera.position.y) * 0.00001;
+        //this.camera.lookAt(this.cameraTarget.position);
 
-        //this.renderer.render(this.scene, this.camera);
+        // this.renderer.render(this.scene, this.camera);
         this.composer.render(1000 * this.clock.getDelta());
     }
 
@@ -217,7 +224,7 @@ export default class App {
             x: position.x,
             y: position.y,
             z: position.z + this.cameraDistanceFromTarget,
-            onUpdate: this.camera.lookAt(this.cameraTarget.position),
+            //onUpdate: this.camera.lookAt(this.cameraTarget.position),
         });
 
         TweenMax.to(this.cameraTarget.position, speed, {
